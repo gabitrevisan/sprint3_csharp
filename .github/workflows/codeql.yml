@@ -9,7 +9,7 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL Advanced"
+name: "Security Pipeline (SAST & DAST)"
 
 on:
   push:
@@ -21,7 +21,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze (CodeQL SAST)
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
@@ -74,7 +74,7 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
 
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-        queries: security-extended,security-and-quality
+        queries: security-and-quality
 
     # If the analyze step fails for one of the languages you are analyzing with
     # "We were unable to automatically build your code", modify the matrix above
@@ -96,3 +96,33 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+
+  zap_scan:
+    name: Scan with OWASP ZAP (DAST)
+    runs-on: ubuntu-latest
+    # Garante que o ZAP só rode se a análise do CodeQL for bem-sucedida
+    needs: analyze
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      
+      - name: Build project
+        run: dotnet build CarteiraCertaApp.sln --configuration Release
+
+      - name: Run API in background
+        run: |
+          dotnet run --project CarteiraCerta.Api/CarteiraCerta.Api.csproj &
+          sleep 20 # Dá um tempo para a API iniciar completamente
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          # Aponta o ZAP para a documentação da sua API para que ele descubra todos os endpoints
+          target: 'http://localhost:5011/swagger/v1/swagger.json'
+          # Gera o relatório como um artefato que pode ser baixado
+          artifact_name: ZAP-Report
