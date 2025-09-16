@@ -51,9 +51,6 @@ jobs:
     needs: analyze
     permissions:
       issues: write
-      # Adicionando permissão para fazer o upload de artefatos
-      actions: write
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -75,10 +72,4 @@ jobs:
         uses: zaproxy/action-baseline@v0.10.0
         with:
           target: 'http://localhost:5011/swagger/v1/swagger.json'
-          # A ação irá gerar o arquivo 'report_html.html', mas não fará o upload
-
-      - name: Upload ZAP Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZAP-Report
-          path: report_html.html
+          artifact_name: ZAP-Report
