@@ -1,3 +1,8 @@
+using CarteiraCerta.Data;
+using CarteiraCerta.Model;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 namespace CarteiraCerta.Api.Controllers
 {
     [ApiController]
