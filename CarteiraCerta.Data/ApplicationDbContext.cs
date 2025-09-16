@@ -1,3 +1,6 @@
+using CarteiraCerta.Model;
+using Microsoft.EntityFrameworkCore;
+
 namespace CarteiraCerta.Data
 {
     public class ApplicationDbContext : DbContext
