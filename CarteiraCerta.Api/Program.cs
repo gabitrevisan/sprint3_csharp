@@ -1,3 +1,7 @@
+using CarteiraCerta.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // adicionando o dbcontext para conexão com o oracle
