@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace CarteiraCerta.Model
 {
     public class Usuario
