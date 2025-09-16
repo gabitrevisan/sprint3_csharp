@@ -97,11 +97,16 @@ jobs:
       with:
         category: "/language:${{matrix.language}}"
 
-  zap_scan:
+zap_scan:
     name: Scan with OWASP ZAP (DAST)
     runs-on: ubuntu-latest
     # Garante que o ZAP só rode se a análise do CodeQL for bem-sucedida
     needs: analyze
+
+    # V-- ADICIONE ESTE BLOCO DE PERMISSÕES AQUI --V
+    permissions:
+      issues: write # Permite que a Action crie Issues no GitHub com os resultados
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -123,6 +128,9 @@ jobs:
         uses: zaproxy/action-baseline@v0.10.0
         with:
           # Aponta o ZAP para a documentação da sua API para que ele descubra todos os endpoints
+          target: 'http://localhost:5011/swagger/v1/swagger.json'
+          # Gera o relatório como um artefato que pode ser baixado
+          artifact_name: ZAP-Report
           target: 'http://localhost:5011/swagger/v1/swagger.json'
           # Gera o relatório como um artefato que pode ser baixado
           artifact_name: ZAP-Report
