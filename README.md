@@ -102,3 +102,27 @@ Siga os passos abaixo para rodar e testar a API em sua máquina local.
     * Clique em **"Execute"**.
 
 Um código de resposta `201 Created` indica sucesso! Você pode usar os outros endpoints para listar, atualizar e deletar os dados que acabou de criar.
+
+---
+
+## 🔐 Segurança e CI/CD
+
+Este projeto integra práticas de segurança diretamente no pipeline de desenvolvimento (CI/CD) utilizando o GitHub Actions, com o objetivo de identificar e mitigar vulnerabilidades de forma automatizada.
+
+O pipeline de segurança é composto por três etapas principais:
+1. **SAST (Static Application Security Testing):**
+   - Ferramenta: GitHub CodeQL.
+   - Gatilho: Executado a cada push ou pull request para a branch main.
+   - Função: Analisa o código-fonte em busca de vulnerabilidades, como as falhas de controle de acesso encontradas no AtivosController.cs. Os resultados são exibidos na aba "Security" > "Code scanning".
+
+2. **DAST (Dynamic Application Security Testing):**
+   - Ferramenta: OWASP ZAP.
+   - Gatilho: Executado logo após a conclusão bem-sucedida da análise SAST.
+   - Função: Inicia a API em um ambiente de teste e realiza uma varredura dinâmica, "atacando" os endpoints para encontrar vulnerabilidades em tempo de execução. Os resultados são reportados automaticamente como "Issues" no repositório.
+
+3. **SCA (Software Composition Analysis):**
+   - Ferramenta: GitHub Dependabot.
+   - Gatilho: Monitora o repositório continuamente.
+   - Função: Verifica todas as dependências (pacotes NuGet) do projeto em busca de vulnerabilidades conhecidas (CVEs) e alerta sobre quaisquer riscos encontrados na aba "Security" > "Dependabot alerts".
+
+Este pipeline unificado garante que a segurança seja uma parte contínua do ciclo de vida do desenvolvimento.
