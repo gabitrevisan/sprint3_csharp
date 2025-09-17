@@ -9,7 +9,8 @@ on:
     - cron: '17 7 * * 1'
 
 jobs:
-  analyze:
+  # TAREFA 1: SAST com CodeQL
+  sast_scan:
     name: Analyze (CodeQL SAST)
     runs-on: ubuntu-latest
     permissions:
@@ -34,23 +35,17 @@ jobs:
         build-mode: ${{ matrix.build-mode }}
         queries: security-and-quality
 
-    - if: matrix.build-mode == 'manual'
-      shell: bash
-      run: |
-        echo 'If you are using a "manual" build mode, add your build commands here.'
-        exit 1
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
 
-  zap_scan:
+  # TAREFA 2: DAST com OWASP ZAP
+  dast_scan:
     name: Scan with OWASP ZAP (DAST)
     runs-on: ubuntu-latest
-    needs: analyze
-    permissions:
-      issues: write
+    # Garante que o DAST só rode após o SAST
+    needs: sast_scan
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,10 +67,10 @@ jobs:
         uses: zaproxy/action-baseline@v0.10.0
         with:
           target: 'http://localhost:5011/swagger/v1/swagger.json'
-          # This action will generate report files, but we'll upload them manually
+          # A ação irá gerar o arquivo 'report_html.html', mas não fará o upload
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v4
         with:
-          name: ZAP-Report
-          path: report_html.html
+          name: zap-scan-report # Nome do artefato
+          path: report_html.html # Arquivo a ser carregado
