@@ -72,4 +72,10 @@ jobs:
         uses: zaproxy/action-baseline@v0.10.0
         with:
           target: 'http://localhost:5011/swagger/v1/swagger.json'
-          artifact_name: ZAP-Report
+          # This action will generate report files, but we'll upload them manually
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZAP-Report
+          path: report_html.html
