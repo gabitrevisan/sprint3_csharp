@@ -129,7 +129,5 @@ Este pipeline unificado garante que a segurança seja uma parte contínua do cic
 
 ---
 
----
-
 ## 📝 Diagrama
 ![Diagrama de Arquitetura do Projeto](https://github.com/gabitrevisan/sprint3_csharp/raw/main/diagrama_sprint_csharp.png)
