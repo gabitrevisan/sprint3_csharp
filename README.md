@@ -126,3 +126,10 @@ O pipeline de segurança é composto por três etapas principais:
    - Função: Verifica todas as dependências (pacotes NuGet) do projeto em busca de vulnerabilidades conhecidas (CVEs) e alerta sobre quaisquer riscos encontrados na aba "Security" > "Dependabot alerts".
 
 Este pipeline unificado garante que a segurança seja uma parte contínua do ciclo de vida do desenvolvimento.
+
+---
+
+---
+
+## 📝 Diagrama
+![Diagrama de Arquitetura do Projeto](https://github.com/gabitrevisan/sprint3_csharp/raw/main/diagrama_sprint_csharp.png)
