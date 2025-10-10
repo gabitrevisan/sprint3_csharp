@@ -5,11 +5,10 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // adicionando o dbcontext para conexão com o oracle
-// A LINHA ABAIXO FOI COMENTADA TEMPORARIAMENTE PARA O TESTE
-// builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configura o HttpClientFactory para a API Finnhub
+// configura o HttpClientFactory para a API Finnhub
 builder.Services.AddHttpClient("Finnhub", client =>
 {
     client.BaseAddress = new Uri("https://finnhub.io/api/v1/");
