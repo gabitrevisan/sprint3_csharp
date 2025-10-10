@@ -28,12 +28,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// configuração do pipeline de requisições http
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
