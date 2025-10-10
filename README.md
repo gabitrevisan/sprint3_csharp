@@ -12,7 +12,7 @@ Por Eduardo Araujo (RM99758), Gabriela Trevisan (RM99500), Leonardo Bonini (RM55
 
 O **CarteiraCerta** é uma **API RESTful** para uma aplicação de investimentos. A ideia, desenvolvida para o "Challenge FIAP/XP", é criar uma plataforma que guia investidores (principalmente os iniciantes), oferecendo recomendações personalizadas e facilitando o gerenciamento de seus ativos financeiros.
 
-Esta API é a responsável por toda a lógica de negócio, manipulação de dados e comunicação com o banco de dados Oracle.
+Esta API é a responsável por toda a lógica de negócio, manipulação de dados e comunicação com o banco de dados Oracle, além de se conectar a serviços externos para obter dados em tempo real.
 
 ---
 
@@ -20,114 +20,114 @@ Esta API é a responsável por toda a lógica de negócio, manipulação de dado
 
 Atualmente, a API CarteiraCerta possui as seguintes funcionalidades implementadas:
 
-1.  **Gerenciamento Completo de Ativos (CRUD):**
-    * Permite criar, ler, atualizar e deletar ativos financeiros (como ações, fundos, etc.) no banco de dados. É a base para que o usuário possa construir e gerenciar sua carteira.
+1.  **Gerenciamento Completo (CRUD):**
+    * Permite criar, ler, atualizar e deletar todas as entidades principais da aplicação (`Usuários`, `Carteiras` e `Ativos`) no banco de dados.
 
-2.  **Exportação de Dados da Carteira (Manipulação de Arquivos):**
-    * Oferece um endpoint que permite ao usuário exportar os detalhes completos de sua carteira de investimentos para um arquivo no formato `.json`, facilitando a portabilidade e análise dos dados.
+2.  **Pesquisas Avançadas com LINQ:**
+    * Endpoints específicos para buscas, como filtrar ativos por ticker ou listar todas as carteiras de um determinado usuário.
+
+3.  **Integração com API de Cotações em Tempo Real:**
+    * Um endpoint que se conecta à API da Finnhub para buscar o preço atual e outras informações de qualquer ativo financeiro pelo seu ticker.
+
+4.  **Exportação de Dados da Carteira:**
+    * Oferece um endpoint que permite ao usuário exportar os detalhes de sua carteira para um arquivo `.json`, facilitando a portabilidade dos dados.
+    
+5.  **Publicação Contínua na Nuvem:**
+    * O projeto está configurado com um pipeline de CI/CD via GitHub Actions que compila, testa e publica a API automaticamente no **Microsoft Azure**, garantindo que as atualizações sejam entregues de forma rápida e segura.
 
 ---
 
 ## 💡 Como Funciona? (O Fluxo de Dados)
 
-Quando você interage com a interface de testes (Swagger), acontece o seguinte processo:
+1.  **Interface (Swagger UI):** Você interage com um endpoint, por exemplo, solicitando a cotação de um ativo.
 
-1.  **Interface (Swagger UI):** Você preenche os dados de um novo ativo e clica em "Execute". O Swagger atua como um mensageiro, empacotando esses dados e enviando-os para o endereço correto da nossa API.
+2.  **API Controller (`AtivosController`):** A requisição chega ao controller, que entende a solicitação.
 
-2.  **API Controller (A Cozinha):** A requisição chega ao `Controller` correspondente (ex: `AtivosController`). O Controller é o cérebro da operação: ele recebe os dados, entende o que precisa ser feito (neste caso, criar um novo ativo) e aciona a próxima camada.
+3.  **Lógica de Negócio:**
+    * **Para CRUD:** O Controller usa o `DbContext` para traduzir o comando C# em SQL e interagir com o banco de dados Oracle.
+    * **Para Cotações:** O Controller usa o `IHttpClientFactory` para fazer uma chamada HTTP à API externa da Finnhub, enviando a chave de API para autenticação.
 
-3.  **DbContext (O Tradutor):** O Controller utiliza o `ApplicationDbContext` (a ponte com o banco de dados) para executar a ação. O `DbContext` traduz o comando da linguagem C# para um comando em linguagem SQL, que o banco de dados Oracle consegue entender.
-
-4.  **Banco de Dados (O Cofre):** O Oracle Database recebe o comando SQL (ex: `INSERT INTO...`) e armazena permanentemente os dados na tabela correspondente (ex: `CarteiraCerta_Ativos`). O processo é o mesmo, mas no sentido inverso, para operações de leitura (GET).
+4.  **Resposta:** Os dados (do banco Oracle ou da Finnhub) são retornados em formato JSON para a interface.
 
 ---
 
 ## 🛠️ Arquitetura e Tecnologias
 
-O projeto foi construído utilizando uma arquitetura em 3 camadas para garantir a separação de responsabilidades, escalabilidade e manutenção.
+O projeto foi construído utilizando uma arquitetura em 3 camadas:
 
--   `CarteiraCerta.Model`: A camada que contém as classes que representam nossos dados (`Usuario`, `Ativo`, `Carteira`).
--   `CarteiraCerta.Data`: A camada de acesso a dados. É responsável por toda a comunicação com o banco de dados Oracle, utilizando o Entity Framework Core.
--   `CarteiraCerta.Api`: é a camada que expõe os endpoints RESTful que um cliente (como um site ou app mobile) irá consumir.
+-   `CarteiraCerta.Model`: Contém as classes de dados (`Usuario`, `Ativo`, `Carteira`).
+-   `CarteiraCerta.Data`: Camada de acesso a dados, responsável pela comunicação com o banco via Entity Framework Core.
+-   `CarteiraCerta.Api`: Expõe os endpoints RESTful para o cliente.
 
 **Tecnologias Utilizadas:**
-- .NET 8
-- ASP.NET Core
-- Entity Framework Core 8
-- Oracle Database
-- Swagger/OpenAPI
+-   .NET 8
+-   ASP.NET Core
+-   Entity Framework Core 8
+-   Oracle Database
+-   Swagger/OpenAPI
+-   Microsoft Azure (App Services)
+-   GitHub Actions (CI/CD)
 
 ---
 
 ## 🚀 Como Executar e Testar o Projeto
 
-Siga os passos abaixo para rodar e testar a API em sua máquina local.
+### Testando na Nuvem (Ambiente Publicado)
 
-### Pré-requisitos
+A maneira mais fácil de testar é através do ambiente já publicado no Microsoft Azure.
+
+1.  **Acesse a Interface do Swagger:**
+    * Abra o navegador e acesse a URL da aplicação: **`https://carteiracerta-api-2025.azurewebsites.net/swagger/index.html`**
+
+2.  **Teste os Endpoints:**
+    * **Para testar a cotação de um ativo:**
+        * Expanda o endpoint `GET /api/Ativos/cotacao/{ticker}`.
+        * Clique em **"Try it out"**.
+        * Digite um ticker (ex: `PETR4`, `MGLU3`) e clique em **"Execute"**.
+        * Observe a resposta com os dados em tempo real.
+
+### Executando Localmente
+
+Siga os passos abaixo para rodar a API em sua máquina local.
+
+**Pré-requisitos:**
 * .NET 8 SDK instalado.
 * Acesso a um banco de dados Oracle.
+* Uma chave de API da [Finnhub.io](https://finnhub.io).
 
-### 1. Preparação do Ambiente
-1.  **Clone o repositório:**
-    ```bash
-    git clone https://github.com/gabitrevisan/sprint3_csharp
-    cd CarteiraCerta
-    ```
-2.  **Ajuste a Connection String:**
-    * Abra o arquivo `CarteiraCerta.Api/appsettings.json`.
-    * Modifique a `DefaultConnection` com suas credenciais do banco de dados Oracle.
+**1. Preparação do Ambiente:**
+* Clone o repositório.
+* Abra o arquivo `CarteiraCerta.Api/appsettings.json`.
+* Ajuste a `DefaultConnection` com suas credenciais do Oracle.
+* Adicione sua chave da Finnhub na seção `Finnhub`.
 
-3.  **Crie as Tabelas no Banco de Dados:**
-    * Abra o terminal na pasta `CarteiraCerta/CarteiraCerta.Api`.
-    * Execute o comando abaixo para que o Entity Framework crie as tabelas para você:
-    ```bash
-    dotnet ef database update --project ../CarteiraCerta.Data
-    ```
-
-### 2. Executando a API
-1.  Ainda no terminal, na pasta `CarteiraCerta/CarteiraCerta.Api`, execute o comando:
-    ```bash
-    dotnet run
-    ```
-2.  O terminal indicará que a aplicação está rodando e mostrará a URL (ex.:`http://localhost:5011`).
-
-### 3. Testando com o Swagger
-1.  Abra seu navegador e acesse a URL da aplicação seguida de `/swagger` (ex.: **`http://localhost:5011/swagger`**)
-
-2.  Você verá a interface do Swagger com todos os endpoints disponíveis.
-3.  **Para testar a criação de um ativo:**
-    * Clique no endpoint `POST /api/Ativos` para expandir.
-    * Clique em **"Try it out"**.
-    * Edite o `Request body` com os dados do ativo que deseja criar.
-    * Clique em **"Execute"**.
-
-Um código de resposta `201 Created` indica sucesso! Você pode usar os outros endpoints para listar, atualizar e deletar os dados que acabou de criar.
+**2. Executando e Testando:**
+* Execute o comando `dotnet run` na pasta `CarteiraCerta.Api`.
+* Acesse `http://localhost:<porta>/swagger` para testar.
 
 ---
 
 ## 🔐 Segurança e CI/CD
 
-Este projeto integra práticas de segurança diretamente no pipeline de desenvolvimento (CI/CD) utilizando o GitHub Actions, com o objetivo de identificar e mitigar vulnerabilidades de forma automatizada.
+Este projeto integra práticas de segurança diretamente no pipeline de desenvolvimento (CI/CD) utilizando o GitHub Actions para identificar e mitigar vulnerabilidades de forma automatizada.
 
-O pipeline de segurança é composto por três etapas principais:
-1. **SAST (Static Application Security Testing):**
-   - Ferramenta: GitHub CodeQL.
-   - Gatilho: Executado a cada push ou pull request para a branch main.
-   - Função: Analisa o código-fonte em busca de vulnerabilidades, como as falhas de controle de acesso encontradas no AtivosController.cs. Os resultados são exibidos na aba "Security" > "Code scanning".
+O pipeline é composto por SAST (CodeQL), DAST (OWASP ZAP) e SCA (Dependabot).
 
-2. **DAST (Dynamic Application Security Testing):**
-   - Ferramenta: OWASP ZAP.
-   - Gatilho: Executado logo após a conclusão bem-sucedida da análise SAST.
-   - Função: Inicia a API em um ambiente de teste e realiza uma varredura dinâmica, "atacando" os endpoints para encontrar vulnerabilidades em tempo de execução. Os resultados são reportados automaticamente como "Issues" no repositório.
+---
 
-3. **SCA (Software Composition Analysis):**
-   - Ferramenta: GitHub Dependabot.
-   - Gatilho: Monitora o repositório continuamente.
-   - Função: Verifica todas as dependências (pacotes NuGet) do projeto em busca de vulnerabilidades conhecidas (CVEs) e alerta sobre quaisquer riscos encontrados na aba "Security" > "Dependabot alerts".
+## 📸 Evidências de Funcionamento
 
-Este pipeline unificado garante que a segurança seja uma parte contínua do ciclo de vida do desenvolvimento.
+Abaixo estão as evidências do funcionamento da API no ambiente do Microsoft Azure.
+
+![Evidência 01](assets/evidencia1.png)
+![Evidência 02](assets/evidencia2.png)
+![Evidência 03](assets/evidencia3.png)
+![Evidência 04](assets/evidencia4.png)
+![Evidência 05](assets/evidencia5.png)
+![Evidência 06](assets/evidencia6.png)
+![Evidência 07](assets/evidencia7.png)
 
 ---
 
 ## 📝 Diagrama
-![Diagrama de Arquitetura do Projeto](https://github.com/gabitrevisan/sprint3_csharp/raw/main/diagrama_sprint_csharp.png)
+![Diagrama de Arquitetura do Projeto](assets/diagrama_sprint_csharp.png)
