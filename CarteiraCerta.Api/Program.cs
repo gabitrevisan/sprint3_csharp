@@ -8,6 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// configura o HttpClientFactory para a API Finnhub
+builder.Services.AddHttpClient("Finnhub", client =>
+{
+    client.BaseAddress = new Uri("https://finnhub.io/api/v1/");
+    var apiKey = builder.Configuration["Finnhub:ApiKey"];
+    client.DefaultRequestHeaders.Add("X-Finnhub-Token", apiKey);
+});
+
 // adicionando serviços controllers e configurando o json para nao ter loops
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
